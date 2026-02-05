@@ -29,14 +29,12 @@ async function AddTransactionContent({ searchParams }) {
       <div className="flex justify-center md:justify-normal mb-8">
         <h1 className="text-5xl gradient-title ">Add Transaction</h1>
       </div>
-      <Suspense fallback={<Loader />}>
-        <AddTransactionForm
-          accounts={accounts}
-          categories={defaultCategories}
-          editMode={!!editId}
-          initialData={initialData}
-        />
-      </Suspense>
+      <AddTransactionForm
+        accounts={accounts}
+        categories={defaultCategories}
+        editMode={!!editId}
+        initialData={initialData}
+      />
     </div>
   );
 }
