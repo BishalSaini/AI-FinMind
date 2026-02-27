@@ -25,12 +25,17 @@ export default async function DashboardPage() {
 }
 
 async function DashboardContent() {
-  const accounts = await getUserAccounts();
+  // Safely fetch accounts with error handling for new users
+  const accounts = await getUserAccounts().catch((err) => {
+    console.error("Error fetching accounts:", err);
+    return [];
+  });
+  
   const defaultAccount = accounts?.find((account) => account.isDefault);
 
   // Fetch all data in parallel for better performance with error handling
   const [transactions, budgetData] = await Promise.all([
-    getDashboardData(),
+    getDashboardData().catch(() => []),
     defaultAccount ? getCurrentBudget(defaultAccount.id).catch(err => {
       console.error("Error fetching budget:", err);
       return null;
