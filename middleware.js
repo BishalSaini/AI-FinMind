@@ -8,26 +8,6 @@ const isProtectedRoute = createRouteMatcher([
   "/transaction(.*)",
 ]);
 
-// Create Arcjet middleware
-const aj = arcjet({
-  key: process.env.ARCJET_KEY,
-  // characteristics: ["userId"], // Track based on Clerk userId
-  rules: [
-    // Shield protection for content and security
-    shield({
-      mode: "LIVE",
-    }),
-    detectBot({
-      mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
-      allow: [
-        "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc
-        "GO_HTTP", // For Inngest
-        // See the full list at https://arcjet.com/bot-list
-      ],
-    }),
-  ],
-});
-
 // Create base Clerk middleware
 const clerk = clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
@@ -40,8 +20,34 @@ const clerk = clerkMiddleware(async (auth, req) => {
   return NextResponse.next();
 });
 
-// Chain middlewares - ArcJet runs first, then Clerk
-export default createMiddleware(aj, clerk);
+// Only create Arcjet middleware if key is available
+if (process.env.ARCJET_KEY) {
+  const aj = arcjet({
+    key: process.env.ARCJET_KEY,
+    // characteristics: ["userId"], // Track based on Clerk userId
+    rules: [
+      // Shield protection for content and security
+      shield({
+        mode: "LIVE",
+      }),
+      detectBot({
+        mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
+        allow: [
+          "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc
+          "GO_HTTP", // For Inngest
+          // See the full list at https://arcjet.com/bot-list
+        ],
+      }),
+    ],
+  });
+
+  // Chain middlewares - ArcJet runs first, then Clerk
+  export default createMiddleware(aj, clerk);
+} else {
+  // Use only Clerk middleware if Arcjet key is not available
+  console.warn("ARCJET_KEY not found - running without Arcjet protection");
+  export default clerk;
+}
 
 export const config = {
   matcher: [
