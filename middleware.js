@@ -21,6 +21,8 @@ const clerk = clerkMiddleware(async (auth, req) => {
 });
 
 // Only create Arcjet middleware if key is available
+let middleware;
+
 if (process.env.ARCJET_KEY) {
   const aj = arcjet({
     key: process.env.ARCJET_KEY,
@@ -42,12 +44,14 @@ if (process.env.ARCJET_KEY) {
   });
 
   // Chain middlewares - ArcJet runs first, then Clerk
-  export default createMiddleware(aj, clerk);
+  middleware = createMiddleware(aj, clerk);
 } else {
   // Use only Clerk middleware if Arcjet key is not available
   console.warn("ARCJET_KEY not found - running without Arcjet protection");
-  export default clerk;
+  middleware = clerk;
 }
+
+export default middleware;
 
 export const config = {
   matcher: [
