@@ -37,7 +37,7 @@ async function OnboardingContent() {
           Welcome to FinMind! 🎉
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">
-          Let's get you started with your financial journey
+          Let&apos;s get you started with your financial journey
         </p>
         <p className="text-gray-500 dark:text-gray-500">
           Create your first account to begin tracking your finances
